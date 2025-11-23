@@ -57,6 +57,11 @@
                                             <constraint firstAttribute="width" secondItem="z3J-3Z-BvV" secondAttribute="height" multiplier="2:3" id="aKl-m8-5la"/>
                                             <constraint firstAttribute="width" constant="335" id="w4k-Tt-V5k"/>
                                         </constraints>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="20"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="48j-TG-2oB" userLabel="Question Label">
                                         <rect key="frame" x="0.0" y="562" width="374" height="102"/>
@@ -123,7 +128,9 @@
                     <connections>
                         <outlet property="counterLabel" destination="dHK-BZ-4t1" id="H0R-El-o0P"/>
                         <outlet property="imageView" destination="z3J-3Z-BvV" id="BGo-Fe-QwT"/>
+                        <outlet property="noButton" destination="83T-gA-3UB" id="4Oi-f2-kxy"/>
                         <outlet property="textLabel" destination="48j-TG-2oB" id="dNs-5Y-c8n"/>
+                        <outlet property="yesButton" destination="hqt-iS-WW3" id="7a2-U3-Aa3"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

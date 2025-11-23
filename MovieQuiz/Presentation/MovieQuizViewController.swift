@@ -4,13 +4,15 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet weak var noButton: UIButton!
+    @IBOutlet weak var yesButton: UIButton!
     
     private struct QuizQuestion {
-      // строка с названием фильма, совпадает с названием картинки афиши фильма в Assets
+      // строка с названием фильма
       let image: String
       // строка с вопросом о рейтинге фильма
       let text: String
-      // булевое значение (true, false), правильный ответ на вопрос
+      // правильный ответ на вопрос
       let correctAnswer: Bool
     }
     // массив со списком моковых вопросов
@@ -63,12 +65,22 @@ final class MovieQuizViewController: UIViewController {
     
     // вью модель для состояния "Вопрос показан"
     private struct QuizStepViewModel {
-      // картинка с афишей фильма с типом UIImage
+      // картинка с афишей фильма
       let image: UIImage
       // вопрос о рейтинге квиза
       let question: String
       // строка с порядковым номером этого вопроса (ex. "1/10")
       let questionNumber: String
+    }
+    
+    // для состояния "Результат квиза"
+    private struct QuizResultsViewModel {
+      // строка с заголовком алерта
+      let title: String
+      // строка с текстом о количестве набранных очков
+      let text: String
+      // текст для кнопки алерта
+      let buttonText: String
     }
     
     // метод конвертации, который принимает моковый вопрос и возвращает вью модель для экрана вопроса
@@ -80,8 +92,14 @@ final class MovieQuizViewController: UIViewController {
         return questionStep
     }
     
-    // приватный метод вывода на экран вопроса, который принимает на вход вью модель вопроса и ничего не возвращает
+    // приватный метод вывода на экран вопроса, принимает на вход вью модель вопроса
     private func show(quiz step: QuizStepViewModel) {
+        noButton.isEnabled = true
+        yesButton.isEnabled = true
+        
+        imageView.layer.borderWidth = 0
+        imageView.layer.borderColor = nil
+        
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
@@ -101,6 +119,8 @@ final class MovieQuizViewController: UIViewController {
         if isCorrect {
             correctAnswers += 1
         }
+        noButton.isEnabled = false
+        yesButton.isEnabled = false
         
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
@@ -122,22 +142,12 @@ final class MovieQuizViewController: UIViewController {
           show(quiz: viewModel)
           
       } else {
-        currentQuestionIndex += 1
+          currentQuestionIndex += 1
           let nextQuestion = questions[currentQuestionIndex]
           let viewModel = convert(model: nextQuestion)
           
           show(quiz: viewModel)
       }
-    }
-    
-    // для состояния "Результат квиза"
-    struct QuizResultsViewModel {
-      // строка с заголовком алерта
-      let title: String
-      // строка с текстом о количестве набранных очков
-      let text: String
-      // текст для кнопки алерта
-      let buttonText: String
     }
     
     // приватный метод для показа результатов раунда квиза
@@ -150,6 +160,9 @@ final class MovieQuizViewController: UIViewController {
         let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
+            
+            self.noButton.isEnabled = true
+            self.yesButton.isEnabled = true
             
             let firstQuestion = self.questions[self.currentQuestionIndex]
             let viewModel = self.convert(model: firstQuestion)
