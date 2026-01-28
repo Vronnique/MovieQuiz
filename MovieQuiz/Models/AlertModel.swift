@@ -1,9 +1,5 @@
-//
-//  AlertModel.swift
-//  MovieQuiz
-//
 import Foundation
-
+/// модель финального алерта
 struct AlertModel {
     let title: String
     let message: String

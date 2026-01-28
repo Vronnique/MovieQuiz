@@ -66,7 +66,7 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="48j-TG-2oB" userLabel="Question Label">
                                         <rect key="frame" x="0.0" y="562" width="374" height="102"/>
                                         <string key="text">Рейтинг этого фильма 
-меньше, чем 5?</string>
+больше чем 7?</string>
                                         <fontDescription key="fontDescription" name="YSDisplay-Bold" family="YS Display" pointSize="23"/>
                                         <color key="textColor" name="YP White"/>
                                         <nil key="highlightedColor"/>
@@ -115,17 +115,23 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="2m9-Mq-bxi">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Xl9-1R-pGa" secondAttribute="bottom" id="OJ6-KZ-UKm"/>
+                            <constraint firstItem="2m9-Mq-bxi" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="TBF-xT-up2"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Xl9-1R-pGa" secondAttribute="trailing" constant="20" id="WGY-bL-q4D"/>
+                            <constraint firstItem="2m9-Mq-bxi" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="aBV-Tl-lLR"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="top" secondItem="Xl9-1R-pGa" secondAttribute="top" constant="10" id="eLt-Zf-afe"/>
                             <constraint firstItem="Xl9-1R-pGa" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="eet-je-Y5k"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="2m9-Mq-bxi" id="nXs-f8-f8m"/>
                         <outlet property="counterLabel" destination="dHK-BZ-4t1" id="H0R-El-o0P"/>
                         <outlet property="imageView" destination="z3J-3Z-BvV" id="BGo-Fe-QwT"/>
                         <outlet property="noButton" destination="83T-gA-3UB" id="4Oi-f2-kxy"/>
