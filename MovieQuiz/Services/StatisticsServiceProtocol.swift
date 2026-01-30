@@ -1,8 +1,3 @@
-//
-//  StatisticsServiceProtocol.swift
-//  MovieQuiz
-//
-
 import Foundation
 
 protocol StatisticsServiceProtocol {
