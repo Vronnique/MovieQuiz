@@ -1,6 +1,6 @@
 import Foundation
 
-struct NetworkClient {
+struct NetworkClient: NetworkRouting {
     
     private enum NetworkError: Error {
         case codeError
@@ -8,7 +8,6 @@ struct NetworkClient {
     
     func fetch(url: URL, handler: @escaping (Result<Data, Error>) -> Void) {
         var request = URLRequest(url: url)
-        request.timeoutInterval = 5
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {

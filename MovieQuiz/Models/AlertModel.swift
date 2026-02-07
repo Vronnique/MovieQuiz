@@ -1,5 +1,5 @@
 import Foundation
-/// модель финального алерта
+// MARK: - Модель финального алерта
 struct AlertModel {
     let title: String
     let message: String
