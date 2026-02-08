@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController {
     
     // MARK: - IBOutlets
     
@@ -13,58 +13,27 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - Properties
     
-    private var correctAnswers = 0
-    private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion?
     private var alertPresenter = AlertPresenter()
     private var statisticService: StatisticsServiceProtocol!
-    private let presenter = MovieQuizPresenter()
+    private var presenter: MovieQuizPresenter!
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
     
-        presenter.viewController = self
-        
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        presenter = MovieQuizPresenter(viewController: self)
         
         statisticService = StatisticService()
         
         showLoadingIndicator()
         
-        questionFactory?.loadData()
+        presenter.questionFactory?.loadData()
     }
     
-    
-    // MARK: - QuestionFactoryDelegate
-    
-    func didLoadDataFromServer() {
-        hideLoadingIndicator()
-        questionFactory?.requestNextQuestion()
-    }
-
-    func didFailToLoadData(with error: Error) {
-        showNetworkErrorAlert(message: error.localizedDescription)
-    }
-    
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        // проверка, что вопрос не nil
-        guard let question = question else {
-            return
-        }
-        
-        currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
-    }
-
     // MARK: - Private Game Methods
     
-    // метод вывода на экран вопроса, принимает на вход вью модель вопроса
-    private func show(quiz step: QuizStepViewModel) {
+    // метод вывода на экран вопроса
+   func show(quiz step: QuizStepViewModel) {
         noButton.isEnabled = true
         yesButton.isEnabled = true
         
@@ -78,50 +47,50 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
         // метод, который меняет цвет рамки
     func showAnswerResult(isCorrect: Bool) {
-            if isCorrect {
-                correctAnswers += 1
-            }
-            noButton.isEnabled = false
-            yesButton.isEnabled = false
-            
-            imageView.layer.masksToBounds = true
-            imageView.layer.borderWidth = 8
-            imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                guard let self = self else { return }
-                self.showNextQuestionOrResults()
+        presenter.didAnswer(isCorrectAnswer: isCorrect)
+        
+        noButton.isEnabled = false
+        yesButton.isEnabled = false
+        
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.presenter.showNextQuestionOrResults()
+        }
+    }
+    
+    func showNextQuestionOrResults() {
+        if presenter.isLastQuestion() {
+                let text = "Вы ответили на \(presenter.correctAnswers) из 10, попробуйте ещё раз!"
+                
+                let viewModel = QuizResultsViewModel(
+                    title: "Этот раунд окончен!",
+                    text: text,
+                    buttonText: "Сыграть ещё раз")
+                    showResults(viewModel)
+            } else {
+                presenter.switchToNextQuestion()
+                presenter.questionFactory?.requestNextQuestion()
             }
         }
         
-        // приватный метод, который содержит логику перехода в один из сценариев
-    private func showNextQuestionOrResults() {
-        if presenter.isLastQuestion() {
-                
-            // сохраняем результат игры
-                statisticService.store(correct: correctAnswers, total: presenter.questionsAmount)
-                
-                let viewModel = QuizResultsViewModel(
-                    title: "",
-                    text: "",
-                    buttonText: "Сыграть ещё раз")
-                show(quiz: viewModel)
-                
-            } else {
-                presenter.switchToNextQuestion()
-                questionFactory?.requestNextQuestion()
-            }
-        }
             
     // приватный метод для показа результатов раунда квиза
-    private func show(quiz result: QuizResultsViewModel) {
+   func showResults(_ result: QuizResultsViewModel) {
+       
+       if let statisticService = statisticService {
+           statisticService.store(correct: presenter.correctAnswers, total: presenter.questionsAmount)
+       }
         // получаем статистику
         let gamesCount = statisticService.gamesCount
         let bestGame = statisticService.bestGame
         let totalAccuracy = statisticService.totalAccuracy
         let bestGameDate = bestGame.date.dateTimeString
         
-        let statisticsMessage = "Ваш результат: \(correctAnswers)/\(presenter.questionsAmount)\n" +
+        let statisticsMessage = "Ваш результат: \(presenter.correctAnswers)/\(presenter.questionsAmount)\n" +
         "Количество сыгранных квизов: \(gamesCount)\n " +
         "Рекорд: \(bestGame.correct)/\(bestGame.total) (\(bestGameDate))\n" +
         "Средняя точность: \(String(format: "%.2f", totalAccuracy))%"
@@ -131,13 +100,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             message: statisticsMessage,
             buttonText: result.buttonText) { [weak self] in
                 guard let self = self else { return }
-                self.presenter.resetQuestionIndex()
-                self.correctAnswers = 0
                 
                 self.noButton.isEnabled = true
                 self.yesButton.isEnabled = true
     
-                self.questionFactory?.requestNextQuestion()
+                self.presenter.restartGame()
             }
         
         alertPresenter.show(in: self, model: model)
@@ -145,17 +112,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
     // MARK: - Utility Methods
     
-    private func showLoadingIndicator() {
+    func showLoadingIndicator() {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
     
-    private func hideLoadingIndicator() {
+    func hideLoadingIndicator() {
         activityIndicator.isHidden = true
         activityIndicator.stopAnimating()
     }
     
-    private func showNetworkErrorAlert(message: String) {
+    func showNetworkErrorAlert(message: String) {
         hideLoadingIndicator()
         
         let model = AlertModel(
@@ -164,13 +131,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             buttonText: "Попробовать ещё раз") { [weak self] in
                 guard let self = self else { return }
                 self.presenter.resetQuestionIndex()
-                self.correctAnswers = 0
+                self.presenter.correctAnswers = 0
                 
                 self.noButton.isEnabled = false
                 self.yesButton.isEnabled = false
                 
                 self.showLoadingIndicator()
-                self.questionFactory?.loadData()
+                self.presenter.questionFactory?.loadData()
             }
         
         alertPresenter.show(in: self, model: model)
@@ -180,13 +147,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
             // метод вызывается, когда пользователь нажимает на кнопку "Да"
         @IBAction private func yesButtonClicked(_ sender: UIButton) {
-            presenter.currentQuestion = currentQuestion
             presenter.yesButtonClicked()
             }
             
             // метод вызывается, когда пользователь нажимает на кнопку "Нет"
         @IBAction private func noButtonClicked(_ sender: UIButton) {
-            presenter.currentQuestion = currentQuestion
             presenter.noButtonClicked()
             }
         }
