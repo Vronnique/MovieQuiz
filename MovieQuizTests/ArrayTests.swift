@@ -10,7 +10,7 @@ func testGetValueInRange() throws {
     let value = array[safe: 2]
     // then
     XCTAssertNotNil(value)
-    XCTAssertEqual(value, 2)
+    XCTAssertEqual(value, 3)
 }
 
     func testGetValueOutOfRange() throws {

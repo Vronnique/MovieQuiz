@@ -1,47 +1,105 @@
 import Foundation
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
-    var questionFactory: QuestionFactoryProtocol?
-    weak var viewController: MovieQuizViewController?
-    private var statisticService: StatisticsServiceProtocol!
     
-    init(viewController: MovieQuizViewController){
-        self.viewController = viewController
-        
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        questionFactory?.loadData()
-        viewController.showLoadingIndicator()
-    }
+    // MARK: - Properties
+    
+    var questionFactory: QuestionFactoryProtocol?
+    private weak var viewController: MovieQuizViewControllerProtocol?
+    private let statisticService: StatisticServiceProtocol!
     
     let questionsAmount: Int = 10
     var correctAnswers: Int = 0
     private var currentQuestionIndex: Int = 0
-    var currentQuestion: QuizQuestion?
+    private var currentQuestion: QuizQuestion?
+    
+    // MARK: - Init
+    
+    init(viewController: MovieQuizViewControllerProtocol?){
+        self.viewController = viewController
+        
+        statisticService = StatisticService()
+        
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory?.loadData()
+        
+        viewController?.showLoadingIndicator()
+    }
     
     // MARK: - QuestionFactoryDelegate
-        
-        func didLoadDataFromServer() {
-            viewController?.hideLoadingIndicator()
-            questionFactory?.requestNextQuestion()
+    
+    func didLoadDataFromServer() {
+        viewController?.hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        let message = error.localizedDescription
+        viewController?.showNetworkErrorAlert(message: message)
+    }
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
         }
         
-        func didFailToLoadData(with error: Error) {
-            let message = error.localizedDescription
-            viewController?.showNetworkErrorAlert(message: message)
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.viewController?.show(quiz: viewModel)
+        }
+    }
+    
+    // MARK: - Answer Handling Methods
+    
+    func yesButtonClicked() {
+        didAnswer(isYes: true)
+    }
+    
+    func noButtonClicked() {
+        didAnswer(isYes: false)
+    }
+    
+    private func didAnswer(isYes: Bool) {
+        guard let currentQuestion = currentQuestion else {
+            return
         }
         
-        func didReceiveNextQuestion(question: QuizQuestion?) {
-            guard let question = question else {
-                return
-            }
-            
-            currentQuestion = question
-            let viewModel = convert(model: question)
-            DispatchQueue.main.async { [weak self] in
-                self?.viewController?.show(quiz: viewModel)
-            }
-        }
+        let givenAnswer = isYes
         
+        self.proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        
+    }
+    
+    func didAnswer(isCorrectAnswer: Bool) {
+        if isCorrectAnswer {
+            correctAnswers += 1
+        }
+    }
+    
+    private func proceedWithAnswer(isCorrect: Bool) {
+        didAnswer(isCorrectAnswer: isCorrect)
+        
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.proceedToNextQuestionOrResults()
+        }
+    }
+    
+    // MARK: - View Model Conversion
+    
+    // метод конвертации данных для показа вопроса
+    func convert(model: QuizQuestion) -> QuizStepViewModel {
+        QuizStepViewModel(
+            image: model.image,
+            question: model.text,
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+    }
+    
+    // MARK: - Game flow
+    
     func restartGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
@@ -60,15 +118,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         currentQuestionIndex += 1
     }
     
-    // метод конвертации, который принимает вопрос и возвращает вью модель для экрана вопроса
-    func convert(model: QuizQuestion) -> QuizStepViewModel {
-        QuizStepViewModel(
-            image: model.image,
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-    }
-    
-    func showNextQuestionOrResults() {
+    private func proceedToNextQuestionOrResults() {
         if self.isLastQuestion() {
             
             let viewModel = QuizResultsViewModel(
@@ -83,28 +133,23 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    func yesButtonClicked() {
-        didAnswer(isYes: true)
-    }
+    // MARK: - Results & Statistics
     
-    func noButtonClicked() {
-        didAnswer(isYes: false)
-    }
-    
-    private func didAnswer(isYes: Bool) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
+    func makeResultsMessage() -> String {
+        statisticService.store(correct: correctAnswers, total: questionsAmount)
         
-        let givenAnswer = isYes
+        let bestGame = statisticService.bestGame
         
-        viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        let totalPlaysCountLine = "Количество сыгранных квизов: \(statisticService.gamesCount)"
+        let currentGameResultLine = "Ваш результат: \(correctAnswers)\\\(questionsAmount)"
+        let bestGameInfoLine = "Рекорд: \(bestGame.correct)\\\(bestGame.total)"
+        + " (\(bestGame.date.dateTimeString))"
+        let averageAccuracyLine = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
         
-    }
-    
-    func didAnswer(isCorrectAnswer: Bool) {
-        if isCorrectAnswer {
-            correctAnswers += 1
-        }
+        let resultMessage = [
+            currentGameResultLine, totalPlaysCountLine, bestGameInfoLine, averageAccuracyLine
+        ].joined(separator: "\n")
+        
+        return resultMessage
     }
 }

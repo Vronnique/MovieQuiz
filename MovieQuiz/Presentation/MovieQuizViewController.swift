@@ -1,23 +1,24 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     
     // MARK: - IBOutlets
     
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
-    @IBOutlet weak var noButton: UIButton!
-    @IBOutlet weak var yesButton: UIButton!
+    @IBOutlet private weak var noButton: UIButton!
+    @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Properties
     
-    private var alertPresenter = AlertPresenter()
-    private var statisticService: StatisticsServiceProtocol!
     private var presenter: MovieQuizPresenter!
+    private var alertPresenter = AlertPresenter()
+    private var statisticService: StatisticServiceProtocol!
     
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     
@@ -30,7 +31,7 @@ final class MovieQuizViewController: UIViewController {
         presenter.questionFactory?.loadData()
     }
     
-    // MARK: - Private Game Methods
+    // MARK: - Quiz UI Methods
     
     // метод вывода на экран вопроса
    func show(quiz step: QuizStepViewModel) {
@@ -44,60 +45,18 @@ final class MovieQuizViewController: UIViewController {
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
     }
-    
-        // метод, который меняет цвет рамки
-    func showAnswerResult(isCorrect: Bool) {
-        presenter.didAnswer(isCorrectAnswer: isCorrect)
-        
-        noButton.isEnabled = false
-        yesButton.isEnabled = false
-        
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.presenter.showNextQuestionOrResults()
-        }
-    }
-    
-    func showNextQuestionOrResults() {
-        if presenter.isLastQuestion() {
-                let text = "Вы ответили на \(presenter.correctAnswers) из 10, попробуйте ещё раз!"
-                
-                let viewModel = QuizResultsViewModel(
-                    title: "Этот раунд окончен!",
-                    text: text,
-                    buttonText: "Сыграть ещё раз")
-                    showResults(viewModel)
-            } else {
-                presenter.switchToNextQuestion()
-                presenter.questionFactory?.requestNextQuestion()
-            }
-        }
-        
             
-    // приватный метод для показа результатов раунда квиза
+    // метод для показа результатов раунда квиза
    func showResults(_ result: QuizResultsViewModel) {
+       let message = presenter.makeResultsMessage()
        
        if let statisticService = statisticService {
            statisticService.store(correct: presenter.correctAnswers, total: presenter.questionsAmount)
        }
-        // получаем статистику
-        let gamesCount = statisticService.gamesCount
-        let bestGame = statisticService.bestGame
-        let totalAccuracy = statisticService.totalAccuracy
-        let bestGameDate = bestGame.date.dateTimeString
-        
-        let statisticsMessage = "Ваш результат: \(presenter.correctAnswers)/\(presenter.questionsAmount)\n" +
-        "Количество сыгранных квизов: \(gamesCount)\n " +
-        "Рекорд: \(bestGame.correct)/\(bestGame.total) (\(bestGameDate))\n" +
-        "Средняя точность: \(String(format: "%.2f", totalAccuracy))%"
         
         let model = AlertModel(
             title: "Этот раунд окончен!",
-            message: statisticsMessage,
+            message: message,
             buttonText: result.buttonText) { [weak self] in
                 guard let self = self else { return }
                 
@@ -141,6 +100,15 @@ final class MovieQuizViewController: UIViewController {
             }
         
         alertPresenter.show(in: self, model: model)
+    }
+    
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        noButton.isEnabled = false
+        yesButton.isEnabled = false
+        
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
     }
       
     // MARK: - Actions

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - StatisticService
 
-final class StatisticService: StatisticsServiceProtocol {
+final class StatisticService: StatisticServiceProtocol {
     
     // MARK: - Storage
     
