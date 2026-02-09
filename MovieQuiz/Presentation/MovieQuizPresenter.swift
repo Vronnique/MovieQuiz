@@ -21,6 +21,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         statisticService = StatisticService()
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        
         questionFactory?.loadData()
         
         viewController?.showLoadingIndicator()
@@ -122,7 +123,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         if self.isLastQuestion() {
             
             let viewModel = QuizResultsViewModel(
-                title: "Этот раунд окончен",
+                title: "Этот раунд окончен!",
                 text: "",
                 buttonText: "Сыграть ещё раз")
             viewController?.showResults(viewModel)

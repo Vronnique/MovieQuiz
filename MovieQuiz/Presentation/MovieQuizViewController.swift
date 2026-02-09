@@ -15,7 +15,6 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     
     private var presenter: MovieQuizPresenter!
     private var alertPresenter = AlertPresenter()
-    private var statisticService: StatisticServiceProtocol!
     
     // MARK: - Lifecycle
     
@@ -24,11 +23,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     
         presenter = MovieQuizPresenter(viewController: self)
         
-        statisticService = StatisticService()
-        
         showLoadingIndicator()
-        
-        presenter.questionFactory?.loadData()
     }
     
     // MARK: - Quiz UI Methods
@@ -49,13 +44,9 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     // метод для показа результатов раунда квиза
    func showResults(_ result: QuizResultsViewModel) {
        let message = presenter.makeResultsMessage()
-       
-       if let statisticService = statisticService {
-           statisticService.store(correct: presenter.correctAnswers, total: presenter.questionsAmount)
-       }
         
         let model = AlertModel(
-            title: "Этот раунд окончен!",
+            title: result.title,
             message: message,
             buttonText: result.buttonText) { [weak self] in
                 guard let self = self else { return }
