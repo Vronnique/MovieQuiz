@@ -1,4 +1,4 @@
-import UIKit
+import Foundation
 /// визуальная модель для состояния "Вопрос показан"
 struct QuizStepViewModel {
   let image: Data

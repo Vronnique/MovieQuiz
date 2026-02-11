@@ -42,12 +42,11 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     }
             
     // метод для показа результатов раунда квиза
-   func showResults(_ result: QuizResultsViewModel) {
-       let message = presenter.makeResultsMessage()
-        
+    func showResults(_ result : QuizResultsViewModel) {
+  
         let model = AlertModel(
             title: result.title,
-            message: message,
+            message: result.text,
             buttonText: result.buttonText) { [weak self] in
                 guard let self = self else { return }
                 
@@ -80,14 +79,11 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
             message: message,
             buttonText: "Попробовать ещё раз") { [weak self] in
                 guard let self = self else { return }
-                self.presenter.resetQuestionIndex()
-                self.presenter.correctAnswers = 0
-                
                 self.noButton.isEnabled = false
                 self.yesButton.isEnabled = false
                 
                 self.showLoadingIndicator()
-                self.presenter.questionFactory?.loadData()
+                self.presenter.restartGameIfNetworkError()
             }
         
         alertPresenter.show(in: self, model: model)

@@ -24,7 +24,6 @@
 		FF5872BF2EFAF6D100137080 /* QuestionFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5872BE2EFAF6D100137080 /* QuestionFactoryProtocol.swift */; };
 		FFAC94852F37B9C1006664F4 /* MovieQuizPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAC94842F37B9C1006664F4 /* MovieQuizPresenter.swift */; };
 		FFAC94C82F390348006664F4 /* MovieQuizViewControllerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAC94C72F390348006664F4 /* MovieQuizViewControllerProtocol.swift */; };
-		FFB080AB2F37A3A100DE4075 /* MoviesLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFB080AA2F37A3A100DE4075 /* MoviesLoader.swift */; };
 		FFC933802EF587EF00EA4E8A /* QuestionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC9337F2EF587EF00EA4E8A /* QuestionFactory.swift */; };
 		FFC933892EF593B600EA4E8A /* QuizStepViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC933882EF593B600EA4E8A /* QuizStepViewModel.swift */; };
 		FFC9338B2EF593CF00EA4E8A /* QuizResultsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC9338A2EF593CF00EA4E8A /* QuizResultsViewModel.swift */; };
@@ -86,7 +85,6 @@
 		FFAC94C72F390348006664F4 /* MovieQuizViewControllerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizViewControllerProtocol.swift; sourceTree = "<group>"; };
 		FFAC94CD2F3905FD006664F4 /* PresenterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PresenterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFB080772F324B1200DE4075 /* MovieQuizUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieQuizUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		FFB080AA2F37A3A100DE4075 /* MoviesLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesLoader.swift; sourceTree = "<group>"; };
 		FFC9337F2EF587EF00EA4E8A /* QuestionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionFactory.swift; sourceTree = "<group>"; };
 		FFC933882EF593B600EA4E8A /* QuizStepViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizStepViewModel.swift; sourceTree = "<group>"; };
 		FFC9338A2EF593CF00EA4E8A /* QuizResultsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizResultsViewModel.swift; sourceTree = "<group>"; };
@@ -225,7 +223,6 @@
 		FFC9337C2EF5872200EA4E8A /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				FFB080AA2F37A3A100DE4075 /* MoviesLoader.swift */,
 				FFC9337F2EF587EF00EA4E8A /* QuestionFactory.swift */,
 				FF5872BE2EFAF6D100137080 /* QuestionFactoryProtocol.swift */,
 				FFF0A0922EFC0F4600AFD5EC /* QuestionFactoryDelegate.swift */,
@@ -449,7 +446,6 @@
 				FF2FD11E2F2A651E00913AC5 /* MoviesLoader.swift in Sources */,
 				AD1ABAB62831907B00B3E448 /* MovieQuizViewController.swift in Sources */,
 				FF0FA6812F2FC6C600963730 /* MoviesLoadingProtocol.swift in Sources */,
-				FFB080AB2F37A3A100DE4075 /* MoviesLoader.swift in Sources */,
 				FFC933892EF593B600EA4E8A /* QuizStepViewModel.swift in Sources */,
 				FFC9338D2EF593DE00EA4E8A /* QuizQuestion.swift in Sources */,
 				FFF0A0952EFC28D100AFD5EC /* AlertPresenter.swift in Sources */,
